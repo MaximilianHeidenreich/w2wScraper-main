@@ -36,16 +36,18 @@ if not os.path.exists(os.path.join(os.getcwd(), "out")):
 
 # Global CONFIG
 DEBUG_OUT                   = True  # Print addition extraction info
-CSV_OUT_NAME                = "./out/wlw_{}.csv".format(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
-CSV_DELIMITER               = ","
-CSV_EXCEL_HEADER            = False # !! Might break special characters when used ! Adds "SEP={delimiter}" to the out file -> Excel can display it with correct formatting
-ERROR_OUT_NAME                = "./out/wlw_{}.error.txt".format(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
 
 QUERY                       = {
     "q": "software",
     #"supplierTypes": "Großhändler",
     #"employeeCounts": "200+",          # Special chars are escaped automatically!
 }
+
+CSV_OUT_NAME                = "./out/wlw_{}_{}.csv".format(getQueryString(), datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+CSV_DELIMITER               = ","
+CSV_EXCEL_HEADER            = False # !! Might break special characters when used ! Adds "SEP={delimiter}" to the out file -> Excel can display it with correct formatting
+ERROR_OUT_NAME                = "./out/wlw_{}_{}.error.txt".format(getQueryString(), datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+
 PAGINATION_URL_TEMPLATE     = "https://www.wlw.de/de/suche?{query}"
 PAGE_TEMPLATE_URL           = "https://www.wlw.de/de/suche/page/{pageIndex}?{query}"
 PAGE_START_INDEX            = 1
@@ -57,10 +59,11 @@ EXTRACTOR_FUNCTIONS = [
     extractBusinessAddress,
     extractBusinessPhone,
     extractBusinessWebsite,
-    extractBusinessDescription,
+    #extractBusinessDescription,
     extractEstablished,
     extractEmployeeCount,
     extractLocation,
+    #extractKeyFigures,
     extractContactDetails
 ]
 
