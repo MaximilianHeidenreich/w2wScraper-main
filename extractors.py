@@ -140,7 +140,7 @@ def extractContactDetails(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
         if not titleFilter or re.match(titleFilter, title):
             name = stripOuterWhitespace(card.select_one(".direct-contact__person").text)
             buttons = card.select(".category__buttons")
-            contactStr = EMPTY_EXTRACT
+            contactStr = ""
             for btn in buttons:
                 btnText = btn.getText(MULTILINE_DELIMITER)
                 btnText = re.sub("Telefonnummer anzeigen", "", btnText)
