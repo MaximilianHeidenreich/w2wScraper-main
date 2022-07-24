@@ -118,6 +118,26 @@ def extractLocation(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
         return "Location", EMPTY_EXTRACT
     return "Location", stripOuterWhitespace(el.get_text(MULTILINE_DELIMITER))
 
+def extractKeyFigures(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
+    """
+    Extracts the key figures from the soup.
+    """
+    fig_container = soup.select_one("table")
+    print("\n\n\n\n{}\n\n\n\n".format(fig_container))
+    if not fig_container:
+        return "Key Figures", EMPTY_EXTRACT
+    
+    # Jahr
+    year = stripOuterWhitespace(soup.select_one(".balance table thead tr th:last-child").text)
+    # Bilanzsumme
+    summ = stripOuterWhitespace(soup.select_one(".balance table tbody tr:first-child td:last-child").text)
+    # Umsatz
+    umsatz = stripOuterWhitespace(soup.select_one(".balance table tbody tr:last-child td:last-child").text)
+
+    o = "Jahr: {}\r\nBilanzsumme: {}\r\nUmsatz: {}\r\n".format(year, summ, umsatz)
+
+    return "Key Figures", o
+
 def extractContactDetails(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
     Extracts the contact details for specific persons from the soup.
