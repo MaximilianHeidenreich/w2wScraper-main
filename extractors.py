@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup, ResultSet
 from transformers import stripOuterWhitespace
 
 EMPTY_EXTRACT = "none"
-MULTILINE_DELIMITER = "\n"
+MULTILINE_DELIMITER = "\r\n"
 
 # UTIL
 def rSetToList(rSet: ResultSet) -> list:
@@ -146,8 +146,8 @@ def extractContactDetails(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
                 btnText = re.sub("Telefonnummer anzeigen", "", btnText)
                 btnText = re.sub("Firma kontaktieren", "", btnText)
                 contactStr = contactStr + btnText
-                contactStr = re.sub(r"\n\s*\n", "\n\n", contactStr)
-                contactStr = contactStr + "\n- NEXT BUTTON -\n"
+                contactStr = re.sub(r"\n\s*\n", "\r\n\r\n", contactStr)
+                contactStr = contactStr + "\r\n- NEXT BUTTON -\r\n"
                 
             # Extract phone numbers
             #phoneNum = re.compile(r"[^\d\s\n\r+-/().]+").sub("", contactStr)
@@ -161,7 +161,7 @@ def extractContactDetails(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
 
     outStr = ""
     for details in cardDetails:
-        outStr = outStr + "Title: {}\nName: {}\nContacts: {}\n".format(details["title"], details["name"], details["contacts"])
+        outStr = outStr + "Title: {}\r\nName: {}\r\nContacts: {}\r\n".format(details["title"], details["name"], details["contacts"])
 
     return "Contact Details", outStr
 

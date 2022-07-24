@@ -168,7 +168,7 @@ def handlePageUrl(url: str):
         return True
     except Exception as e:
         sPrint("ERR: Exception while handling page {}: {}".format(pageUrl, e))
-        ERR_FILE.write("\nErr @ {}: {}\n\n".format(pageUrl, e))
+        ERR_FILE.write("\r\nErr @ {}: {}\r\n\r\n".format(pageUrl, e))
         return True
 
 try:
@@ -190,11 +190,11 @@ except KeyboardInterrupt:
 PAGES_PROGRESS.close()
 LISTINGS_PROGRESS.close()
 
-print("\n> Writing CSV...")
+print("\r\n> Writing CSV...")
 # Write to csv
 with open(os.path.join(CWD, CSV_OUT_NAME), "w+", buffering=1, encoding="UTF-8") as csvFile:
     if CSV_EXCEL_HEADER:
-        csvFile.write("SEP={}\n".format(CSV_DELIMITER))
+        csvFile.write("SEP={}\r\n".format(CSV_DELIMITER))
 
     # Collect all field names
     fieldNames = ["url"]
