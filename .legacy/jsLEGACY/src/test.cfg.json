@@ -1,0 +1,133 @@
+{
+    "pagination": {
+        "baseURL": "https://www.wlw.de/de/suche?q=software",
+        "pageURL": "https://www.wlw.de/de/suche/page/{pageIndex}?q={query}",
+        "startIndex": 1,
+        "endExtractionOperations": [
+            {
+                "operation": "querySelector",
+                "options": {
+                    "selector": ".pagination > :nth-last-child(2)"
+                }
+            },
+            {
+                "operation": "text"
+            },
+            {
+                "operation": "stripOuterWhitespace"
+            },
+            {
+                "operation": "toInt"
+            }
+        ]
+    },
+    "listingsExtraction": [
+        {
+            "operation": "querySelectorAll",
+            "options": {
+                "selector": ".results > div > div > div > .company-title-link"
+            }
+        },
+        {
+            "operation": "map",
+            "options": {
+                "mapOperations": [
+                    {
+                        "operation": "text",
+                        "options": {
+                            "attribute": "href"
+                        }
+                    }
+                ]
+            }
+        }
+    ],
+    "listingExtraction": [
+        {
+            "name": "Business Name",
+            "operations": [
+                {
+                    "operation": "querySelector",
+                    "options": {
+                        "selector": ".business-card__title"
+                    }
+                },
+                {
+                    "operation": "text"
+                },
+                {
+                    "operation": "stripOuterWhitespace"
+                }
+            ]
+        },
+        {
+            "name": "Business Address",
+            "operations": [
+                {
+                    "operation": "querySelector",
+                    "options": {
+                        "selector": ".business-card__address"
+                    }
+                },
+                {
+                    "operation": "text"
+                },
+                {
+                    "operation": "stripOuterWhitespace"
+                }
+            ]
+        },
+        {
+            "name": "Business Phone Number",
+            "operations": [
+                {
+                    "operation": "querySelector",
+                    "options": {
+                        "selector": "[data-test=\"phone__number\"] > span"
+                    }
+                },
+                {
+                    "operation": "text"
+                },
+                {
+                    "operation": "stripOuterWhitespace"
+                }
+            ]
+        },
+        {
+            "name": "Established",
+            "operations": [
+                {
+                    "operation": "querySelector",
+                    "options": {
+                        "selector": "dsd"
+                    }
+                },
+                {
+                    "operation": "text"
+                },
+                {
+                    "operation": "stripOuterWhitespace"
+                },
+                {
+                    "operation": "eqalsORundefined",
+                    "options": {
+                        "equalTo": "Gründungsjahr"
+                    }
+                },
+                {
+                    "operation": "querySelector",
+                    "options": {
+                        "selector": ".facts-and-figures > .facts-and-figures__box:nth-last-child(2) .facts-and-figures__value"
+                    }
+                },
+                {
+                    "operation": "text"
+                },
+                {
+                    "operation": "stripOuterWhitespace"
+                }
+            ]
+        }
+    ]
+}
