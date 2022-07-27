@@ -55,5 +55,7 @@ A Field is a tuple containing the field name and it string value.
 Fields will be collected and written to the csv file.
 A single extractor function should only extract a single field.
 
+! Extractor functions must always accept (url: string, soup: BeautifulSoup) and return (fieldName, value).
+
 ## Scrapers
 Utility functions for scraping a single listing or scrape all listings from a search page.
