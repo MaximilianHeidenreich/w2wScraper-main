@@ -18,71 +18,92 @@ def extractBusinessName(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
     Extracts the business name from the soup.
     """
+    FIELD_NAME = "Business Name"
+    if not soup: return FIELD_NAME, EMPTY_EXTRACT
+
     el = soup.select_one(".business-card__title")
     if not el:
-        return "Business Name", EMPTY_EXTRACT
-    return "Business Name", stripOuterWhitespace(el.text)
+        return FIELD_NAME, EMPTY_EXTRACT
+    return FIELD_NAME, stripOuterWhitespace(el.text)
 
 
 def extractBusinessAddress(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
     Extracts the business address from the soup.
     """
+    FIELD_NAME = "Business Address"
+    if not soup: return FIELD_NAME, EMPTY_EXTRACT
+
     el = soup.select_one(".business-card__address")
     if not el:
-        return "Business Address", EMPTY_EXTRACT
-    return "Business Address", stripOuterWhitespace(el.text)
+        return FIELD_NAME, EMPTY_EXTRACT
+    return FIELD_NAME, stripOuterWhitespace(el.text)
 
 
 def extractBusinessPhone(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
     Extracts the business phone from the soup.
     """
+    FIELD_NAME = "Business Phone"
+    if not soup: return FIELD_NAME, EMPTY_EXTRACT
+
     el = soup.select_one("[data-test=\"phone__number\"] > span")
     if not el:
-        return "Business Phone", EMPTY_EXTRACT
-    return "Business Phone", stripOuterWhitespace(el.text)
+        return FIELD_NAME, EMPTY_EXTRACT
+    return FIELD_NAME, stripOuterWhitespace(el.text)
 
 
 def extractBusinessWebsite(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
     Extracts the business website from the soup.
     """
+    FIELD_NAME = "Business Website"
+    if not soup: return FIELD_NAME, EMPTY_EXTRACT
+
     el = soup.select_one("#location-and-contact__website")#"a.website-button__button")
     if not el:
-        return "Business Website", EMPTY_EXTRACT
-    return "Business Website", stripOuterWhitespace(el.get("href"))
+        return FIELD_NAME, EMPTY_EXTRACT
+    return FIELD_NAME, stripOuterWhitespace(el.get("href"))
 
 
 def extractBusinessDescription(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
     Extracts the business description from the soup.
     """
+    FIELD_NAME = "Business Description"
+    if not soup: return FIELD_NAME, EMPTY_EXTRACT
+
     # TODO!: Impls
     el = soup.select_one("p.company-summary__text")
     #el = soup.select_one("div#company-media-about-us div.description__content")
     if not el:
-        return "Business Description", EMPTY_EXTRACT
-    return "Business Description", stripOuterWhitespace(el.getText(MULTILINE_DELIMITER))
+        return FIELD_NAME, EMPTY_EXTRACT
+    return FIELD_NAME, stripOuterWhitespace(el.getText(MULTILINE_DELIMITER))
 
 
 def extractEstablished(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
     Extracts the established date from the soup.
     """
+    FIELD_NAME = "Established"
+    if not soup: return FIELD_NAME, EMPTY_EXTRACT 
+
     boxes = rSetToList(soup.select(".facts-and-figures > .facts-and-figures__box"))
     result = EMPTY_EXTRACT
     for box in boxes:
         if box.select_one(".facts-and-figures__title").text == "Gründungsjahr":
             result = box.select_one(".facts-and-figures__value").text
             break
-    return "Established", stripOuterWhitespace(result)
+    return FIELD_NAME, stripOuterWhitespace(result)
 
 
 def extractEmployeeCount(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
     Extracts the employee count from the soup.
     """
+    FIELD_NAME = "Employee Count"
+    if not soup: return FIELD_NAME, EMPTY_EXTRACT 
+
     boxes = rSetToList(soup.select(".facts-and-figures > .facts-and-figures__box"))
     result = EMPTY_EXTRACT
     for box in boxes:
@@ -106,26 +127,32 @@ def extractEmployeeCount(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     if reMap and result in mapping:
         result = mapping[result]
 
-    return "Employee Count", stripOuterWhitespace(result)
+    return FIELD_NAME, stripOuterWhitespace(result)
 
 
 def extractLocation(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
     Extracts the location from the soup.
     """
+    FIELD_NAME = "Location"
+    if not soup: return FIELD_NAME, EMPTY_EXTRACT 
+
     el = soup.select_one(".location-and-contact address")
     if not el:
-        return "Location", EMPTY_EXTRACT
-    return "Location", stripOuterWhitespace(el.get_text(MULTILINE_DELIMITER))
+        return FIELD_NAME, EMPTY_EXTRACT
+    return FIELD_NAME, stripOuterWhitespace(el.get_text(MULTILINE_DELIMITER))
 
 def extractKeyFigures(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
     Extracts the key figures from the soup.
     """
+    FIELD_NAME = "Key Figures"
+    if not soup: return FIELD_NAME, EMPTY_EXTRACT 
+
     fig_container = soup.select_one("table")
     print("\n\n\n\n{}\n\n\n\n".format(fig_container))
     if not fig_container:
-        return "Key Figures", EMPTY_EXTRACT
+        return FIELD_NAME, EMPTY_EXTRACT
     
     # Jahr
     year = stripOuterWhitespace(soup.select_one(".balance table thead tr th:last-child").text)
@@ -136,7 +163,7 @@ def extractKeyFigures(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
 
     o = "Jahr: {}\r\nBilanzsumme: {}\r\nUmsatz: {}\r\n".format(year, summ, umsatz)
 
-    return "Key Figures", o
+    return FIELD_NAME, o
 
 def extractContactDetails(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     """
@@ -144,14 +171,17 @@ def extractContactDetails(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     Configure this extractor to include only specific search strings in person titles or 
     to include all persons.
     """
+    FIELD_NAME = "Contact Details"
+    if not soup: return FIELD_NAME, EMPTY_EXTRACT 
+
     titleFilter = None # e.g. r"\bGeschäftsführer\b" -> Will only extract persons with "Geschäftsführer" in their title
 
     el = soup.select_one(".categories .categories__container")
     if not el:
-        return "Contact Details", EMPTY_EXTRACT
+        return FIELD_NAME, EMPTY_EXTRACT
     cards = el.select(".category__card")
     if not cards:
-        return "Contact Details", EMPTY_EXTRACT
+        return FIELD_NAME, EMPTY_EXTRACT
 
     cardDetails = []
 
@@ -183,5 +213,5 @@ def extractContactDetails(url: str, soup: BeautifulSoup) -> Tuple[str, str]:
     for details in cardDetails:
         outStr = outStr + "Title: {}\r\nName: {}\r\nContacts: {}\r\n".format(details["title"], details["name"], details["contacts"])
 
-    return "Contact Details", outStr
+    return FIELD_NAME, outStr
 

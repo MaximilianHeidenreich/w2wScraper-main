@@ -107,8 +107,6 @@ sPrint("=> Pagination: {} - {} / {} listings".format(PAGE_START_INDEX, pageEndIn
 PAGES_PROGRESS = tqdm(desc="Pages", total=pageEndIndex)
 LISTINGS_PROGRESS = tqdm(desc="Listings", total=listingsCnt)
 
-sPrint("> Starting scraping pages...")
-
 def handleListing(url: str) -> list:
     """
     Handles a single listing.
@@ -158,65 +156,68 @@ def handlePageUrl(url: str):
     global ERR_FILE
 
     try:
-        listingsCnt, listingFields = handlePage(pageUrl)
+        listingsCnt, listingFields = handlePage(url)
         if listingsCnt <= 0:
-            sPrint("WARN: No listings found on page {} -> Rescraping later".format(pageUrl))
-            ISSUE_PAGES.append(pageUrl)
-            return False
+            sPrint("WARN: No listings found on page {} -> Rescraping later".format(url))
+            ISSUE_PAGES.append(url)
+            return None
         
-        LISTING_FIELDS = LISTING_FIELDS + listingFields
         PAGES_PROGRESS.update(1)
         if PAGE_SCRAPE_DELAY > 0:
             time.sleep(PAGE_SCRAPE_DELAY)
-        return True
+        return listingFields
     except Exception as e:
-        sPrint("ERR: Exception while handling page {}: {}".format(pageUrl, e))
-        ERR_FILE.write("\r\nErr @ {}: {}\r\n\r\n".format(pageUrl, e))
-        return True
+        sPrint("ERR: Exception while handling page {}: {}".format(url, e))
+        ERR_FILE.write("\r\nErr @ {}: {}\r\n\r\n".format(url, e))
+        return None
 
-try:
-    # Iterate over page indices
-    for pageIndex in range(PAGE_START_INDEX, pageEndIndex):
-        pageUrl = PAGE_TEMPLATE_URL.format(pageIndex=pageIndex, query=getQueryString())
-        handlePageUrl(pageUrl)
+def scrapeGenerator():
+    try:
+        # Iterate over page indices
+        for pageIndex in range(PAGE_START_INDEX, pageEndIndex):
+            pageUrl = PAGE_TEMPLATE_URL.format(pageIndex=pageIndex, query=getQueryString())
+            yield handlePageUrl(pageUrl)
 
-    # Handle ISSUE_PAGES
-    sPrint("> Rescraping {} issue pages...".format(len(ISSUE_PAGES)))
-    while len(ISSUE_PAGES) > 0:
-        pageUrl = ISSUE_PAGES[len(ISSUE_PAGES) - 1]
-        success = handlePageUrl(pageUrl)
-        if success:
-            ISSUE_PAGES.pop()
-except KeyboardInterrupt:
-    pass
+        # Handle ISSUE_PAGES
+        sPrint("> Rescraping {} issue pages...".format(len(ISSUE_PAGES)))
+        while len(ISSUE_PAGES) > 0:
+            pageUrl = ISSUE_PAGES[len(ISSUE_PAGES) - 1]
+            success = handlePageUrl(pageUrl)
+            if success:
+                ISSUE_PAGES.pop()
+                yield success
+    except KeyboardInterrupt:
+        pass
 
-PAGES_PROGRESS.close()
-LISTINGS_PROGRESS.close()
-
-print("\r\n> Writing CSV...")
+sPrint("\r\n> Opening CSV file...")
 # Write to csv
-with open(os.path.join(CWD, CSV_OUT_NAME), "w+", buffering=1, encoding="UTF-8") as csvFile:
+with open(os.path.join(CWD, CSV_OUT_NAME), "w+", buffering=1, encoding="UTF-8") as csvFile: 
+    
+    # Extract field names
+    fieldNames = ["url"]
+    for f in EXTRACTOR_FUNCTIONS:
+        fName, empty = f("", None)
+        if fName not in fieldNames:
+            fieldNames.append(fName)
+
     if CSV_EXCEL_HEADER:
         csvFile.write("SEP={}\r\n".format(CSV_DELIMITER))
 
-    # Collect all field names
-    fieldNames = ["url"]
-    listingObjs = []
-    for listing in LISTING_FIELDS:
-        url = listing["url"]
-        fields = listing["fields"]
-        listingObj = { "url": url }
-        for fieldName in fields:
-            listingObj[fieldName] = fields[fieldName]
-            if fieldName not in fieldNames:
-                fieldNames.append(fieldName)
-        listingObjs.append(listingObj)
-    
     csvWriter = csv.DictWriter(csvFile, fieldnames=fieldNames, delimiter=CSV_DELIMITER, quotechar='"', quoting=csv.QUOTE_ALL, dialect="excel")
     csvWriter.writeheader()
-    csvWriter.writerows(listingObjs)
-    
+    sPrint("> Starting scraping pages...")
 
+    for pageListings in scrapeGenerator():
+        if pageListings:
+            for listing in pageListings:
+                #if listingFields:
+                listingObj = { "url": listing["url"] }
+                for fName in listing["fields"]:
+                    listingObj[fName] = listing["fields"][fName]
+                csvWriter.writerow(listingObj)
+    
 # Cleanup & Exit
+PAGES_PROGRESS.close()
+LISTINGS_PROGRESS.close()
 ERR_FILE.close()
 exit(0)
