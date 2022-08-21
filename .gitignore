@@ -1,2 +1,5 @@
+.legalegacy/
+.legacy/
 out/
 __pycache__/
+test.py
