@@ -96,7 +96,12 @@ def extractBusinessDescription(browser_driver_name: str) -> Tuple[str, Callable[
         el = pageSoup.select_one("#company-media-about-us")
         if not el:
             return fieldName, EMPTY_EXTRACT
-        return fieldName, stripOuterWhitespace(el.attrs["description"])
+        dsc = ""
+        try:
+            dsc = el.attrs["description"]
+        except:
+            dsc = EMPTY_EXTRACT
+        return fieldName, stripOuterWhitespace(dsc)
     return fieldName, lambda url, soup : f(url, soup)
 
 def extractEstablished() -> Tuple[str, Callable[[str, BeautifulSoup], Tuple[str, str]]]:
